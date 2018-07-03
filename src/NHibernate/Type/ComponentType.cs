@@ -71,7 +71,7 @@ namespace NHibernate.Type
 			}
 
 			ComponentTuplizer = metamodel.ComponentTuplizer;
-			EntityMode = metamodel.EntityMode;
+			EntityMode = EntityMode.Poco; //metamodel.EntityMode;
 			if (EntityMode == EntityMode.Poco)
 			{
 				overridesGetHashCode = ReflectHelper.OverridesGetHashCode(ComponentTuplizer.MappedClass);
