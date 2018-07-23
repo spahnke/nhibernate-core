@@ -20,10 +20,12 @@ namespace NHibernate.Cache
 		private static readonly INHibernateLogger Log = NHibernateLogger.For(typeof (StandardQueryCache));
 		private readonly ICache _queryCache;
 		private readonly string _regionName;
+		private readonly string uuid;
 		private readonly UpdateTimestampsCache _updateTimestampsCache;
 
 		public StandardQueryCache(Settings settings, IDictionary<string, string> props, UpdateTimestampsCache updateTimestampsCache, string regionName)
 		{
+			Log.Info("NHibernateUpdate -- Enter StandardQueryCache.ctor");
 			if (regionName == null)
 				regionName = typeof (StandardQueryCache).FullName;
 
@@ -36,6 +38,8 @@ namespace NHibernate.Cache
 			_queryCache = settings.CacheProvider.BuildCache(regionName, props);
 			_updateTimestampsCache = updateTimestampsCache;
 			_regionName = regionName;
+			uuid = Guid.NewGuid().ToString();
+			Log.Info("NHibernateUpdate -- Exit StandardQueryCache.ctor uuid = " + uuid);
 		}
 
 		#region IQueryCache Members
@@ -57,6 +61,7 @@ namespace NHibernate.Cache
 
 		public bool Put(QueryKey key, ICacheAssembler[] returnTypes, IList result, bool isNaturalKeyLookup, ISessionImplementor session)
 		{
+			Log.Info("NHibernateUpdate -- Enter StandardQueryCache.Put key = " + key + " uuid = " + uuid);
 			if (isNaturalKeyLookup && result.Count == 0)
 				return false;
 
@@ -85,6 +90,7 @@ namespace NHibernate.Cache
 
 		public IList Get(QueryKey key, ICacheAssembler[] returnTypes, bool isNaturalKeyLookup, ISet<string> spaces, ISessionImplementor session)
 		{
+			Log.Info("NHibernateUpdate -- Enter StandardQueryCache.Get key = " + key + " uuid = " + uuid);
 			if (Log.IsDebugEnabled())
 				Log.Debug("checking cached query results in region: '{0}'; {1}", _regionName, key);
 

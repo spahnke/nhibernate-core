@@ -339,6 +339,7 @@ namespace NHibernate.Impl
 			try
 			{
 				uuid = (string)UuidGenerator.Generate(null, null);
+				log.Info("NHibernateUpdate -- Session factory ctor uuid = " + uuid);
 			}
 			catch (Exception ex)
 			{
@@ -382,6 +383,7 @@ namespace NHibernate.Impl
 				updateTimestampsCache = new UpdateTimestampsCache(settings, properties);
 				queryCache = settings.QueryCacheFactory.GetQueryCache(null, updateTimestampsCache, settings, properties);
 				queryCaches = new ConcurrentDictionary<string, Lazy<IQueryCache>>();
+				log.Info("NHibernateUpdate -- Session factory ctor - queryCaches dictionay created");
 			}
 			else
 			{
@@ -1059,12 +1061,14 @@ namespace NHibernate.Impl
 
 		public IQueryCache GetQueryCache(string cacheRegion)
 		{
+			log.Info("NHibernateUpdate -- Enter SessionFactory.GetQueryCache region = " + cacheRegion + " uuid = " + uuid);
 			if (cacheRegion == null)
 			{
 				return QueryCache;
 			}
 			if (!settings.IsQueryCacheEnabled)
 			{
+				log.Info("NHibernateUpdate -- query cache not enabled! region = " + cacheRegion + " uuid = " + uuid);
 				return null;
 			}
 
@@ -1076,6 +1080,7 @@ namespace NHibernate.Impl
 				cr => new Lazy<IQueryCache>(
 					() =>
 					{
+						log.Info("NHibernateUpdate -- Creating cache for region = " + cacheRegion + " uuid = " + uuid);
 						var currentQueryCache = settings.QueryCacheFactory.GetQueryCache(cr, updateTimestampsCache, settings, properties);
 						allCacheRegions[currentQueryCache.RegionName] = currentQueryCache.Cache;
 						return currentQueryCache;
@@ -1084,12 +1089,15 @@ namespace NHibernate.Impl
 
 		public void EvictQueries()
 		{
+			log.Info("NHibernateUpdate -- Enter SessionFactory.EvictQueries uuid = " + uuid);
 			// NH Different implementation
 			if (queryCache != null)
 			{
+				log.Info("NHibernateUpdate -- Clearing general query cache uuid = " + uuid);
 				queryCache.Clear();
 				if (queryCaches.Count == 0)
 				{
+					log.Info("NHibernateUpdate -- Clearing update timestamp cache uuid = " + uuid);
 					updateTimestampsCache.Clear();
 				}
 			}
@@ -1097,6 +1105,7 @@ namespace NHibernate.Impl
 
 		public void EvictQueries(string cacheRegion)
 		{
+			log.Info("NHibernateUpdate -- Enter SessionFactory.EvictQueries region = " + cacheRegion + " uuid = " + uuid);
 			if (string.IsNullOrEmpty(cacheRegion))
 			{
 				throw new ArgumentNullException("cacheRegion", "use the zero-argument form to evict the default query cache");
@@ -1105,8 +1114,10 @@ namespace NHibernate.Impl
 			{
 				if (settings.IsQueryCacheEnabled)
 				{
+					log.Info("NHibernateUpdate -- Attempting to clear cache for region = " + cacheRegion + " uuid = " + uuid);
 					if (queryCaches.TryGetValue(cacheRegion, out var currentQueryCache))
 					{
+						log.Info("NHibernateUpdate -- Clearing cache for region = " + cacheRegion + " uuid = " + uuid);
 						currentQueryCache.Value.Clear();
 					}
 				}
