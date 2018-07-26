@@ -471,7 +471,9 @@ namespace NHibernate.Impl
 
 		public ISession OpenSession()
 		{
-			return WithOptions().OpenSession();
+			var result =  WithOptions().OpenSession();
+			log.Info("NHibernateUpdate -- SessionFactory.OpenSession sessionId = " + result.GetSessionImplementation().SessionId + " uuid = " + uuid);
+			return result;
 		}
 
 		// Obsolete since v5
