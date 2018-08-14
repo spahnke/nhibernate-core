@@ -87,6 +87,11 @@ namespace NHibernate.Hql.Ast.ANTLR.Tree
 			get { return true; }
 		}
 
+		public string MethodName
+		{
+			get { return _methodName; }
+		}
+
 		public void ResolveCollectionProperty(IASTNode expr)
 		{
 			var propertyName = CollectionProperties.GetNormalizedPropertyName( _methodName );

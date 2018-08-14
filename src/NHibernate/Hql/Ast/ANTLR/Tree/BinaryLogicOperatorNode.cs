@@ -51,6 +51,9 @@ namespace NHibernate.Hql.Ast.ANTLR.Tree
 			{
 				throw new SemanticException( "right-hand operand of a binary operator was null" );
 			}
+
+			AdaptParameterTypesForLike();
+
 			ProcessMetaTypeDiscriminatorIfNecessary(lhs, rhs);
 			IType lhsType = ExtractDataType( lhs );
 			IType rhsType = ExtractDataType( rhs );
@@ -76,6 +79,33 @@ namespace NHibernate.Hql.Ast.ANTLR.Tree
 			}
 
 			MutateRowValueConstructorSyntaxesIfNecessary( lhsType, rhsType );
+		}
+
+		protected void AdaptParameterTypesForLike()
+		{
+			if (Text.ToLower() != "like")
+				return;
+			var lhsType = ExtractDataType(LeftHandOperand);
+			if (lhsType == null)
+				return;
+			var rhsMethod = RightHandOperand as MethodNode;
+			SetTypeInConcatNodesRecursively(rhsMethod, lhsType);
+		}
+
+		protected void SetTypeInConcatNodesRecursively(MethodNode method, IType type)
+		{
+			if (method == null || method.MethodName != "concat" || method.ChildCount != 2)
+				return;
+			var concatParams = method.ToList()[1];
+			if (concatParams.Text != "expr_list")
+				return;
+			foreach (var param in concatParams)
+			{
+				if (param is MethodNode methodParam)
+					SetTypeInConcatNodesRecursively(methodParam, type);
+				if (param is ParameterNode parameter)
+					parameter.ExpectedType = type;
+			}
 		}
 
 		protected void MutateRowValueConstructorSyntaxesIfNecessary(IType lhsType, IType rhsType)
