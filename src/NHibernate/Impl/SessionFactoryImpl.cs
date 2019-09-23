@@ -1027,6 +1027,9 @@ namespace NHibernate.Impl
 				return null;
 			}
 
+			if (!string.IsNullOrWhiteSpace(settings.CacheRegionPrefix))
+				cacheRegion = settings.CacheRegionPrefix + "." + cacheRegion;
+
 			return queryCaches.GetOrAdd(
 				cacheRegion,
 				cr =>
